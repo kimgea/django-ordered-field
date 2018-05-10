@@ -5,9 +5,9 @@ import re
 import sys
 
 try:
-    from setuptools import setup
+    from setuptools import setup, Command
 except ImportError:
-    from distutils.core import setup
+    from distutils.core import setup, Command
 
 
 def get_version(*file_paths):
@@ -57,6 +57,7 @@ setup(
     ],
     include_package_data=True,
     install_requires=[],
+    test_suite="runtests.run_tests",
     license="MIT",
     zip_safe=False,
     keywords='django-ordered-field',
@@ -66,9 +67,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
 )

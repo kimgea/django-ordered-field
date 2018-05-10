@@ -15,8 +15,11 @@ A django field to make it easy to order your model instances.
 OrderedField field is a global ordering field for the entire table.
 OrderedCollectionField order instances with respect to one or more other instance fields.
 
-Only tested and supported for python>=3.6 and django>=2.
-Check out django-positions if you need it for older versions.
+
+Requires
+--------
+* python>=3.6
+* django>=2.
 
 Documentation
 -------------
@@ -40,16 +43,28 @@ Add it to your `INSTALLED_APPS`:
         ...
     )
 
+In your models.py add the field you want ``OrderedField`` or ``OrderedCollectionField``:
+
+.. code-block:: python
+
+    from django_ordered_field import OrderedField
+
+    class YourModel(models.Model):
+        name = models.CharField(max_length=100)
+        order = OrderedField()
+
+And your ready to go.
+
 Features
 --------
 
-* TODO
 
 TODO
 --------
 
 * Add tests - Missing for OrderedField. And try to hit all paths
 * Look for missing test for regular use cases
+* Make example project
 
 Running Tests
 -------------
@@ -61,6 +76,12 @@ Does the code actually work?
     source <YOURVIRTUALENV>/bin/activate
     (myenv) $ pip install tox
     (myenv) $ tox
+
+
+    source <YOURVIRTUALENV>/bin/activate
+    (myenv) $ python setup.py test
+
+
 
 Credits
 -------
