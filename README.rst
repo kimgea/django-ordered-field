@@ -15,6 +15,9 @@ A django field to make it easy to order your model instances.
 OrderedField field is a global ordering field for the entire table.
 OrderedCollectionField order instances with respect to one or more other instance fields.
 
+Only tested and supported for python>=3.6 and django>=2.
+Check out django-positions if you need it for older versions.
+
 Documentation
 -------------
 
