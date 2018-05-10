@@ -11,7 +11,12 @@ django-ordered-field
 .. image:: https://codecov.io/gh/kimgea/django-ordered-field/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/kimgea/django-ordered-field
 
-Django field arange  model instances in an ordered fashion
+A django field to make it easy to order your model instances.
+OrderedField field is a global ordering field for the entire table.
+OrderedCollectionField order instances with respect to one or more other instance fields.
+
+Only tested and supported for python>=3.6 and django>=2.
+Check out django-positions if you need it for older versions.
 
 Documentation
 -------------
@@ -23,7 +28,7 @@ Quickstart
 
 Install django-ordered-field::
 
-    pip install django-ordered-field
+    pip install https://github.com/kimgea/django-ordered-field
 
 Add it to your `INSTALLED_APPS`:
 
@@ -31,22 +36,9 @@ Add it to your `INSTALLED_APPS`:
 
     INSTALLED_APPS = (
         ...
-        'django_ordered_field.apps.DjangoOrderedFieldConfig',
+        'django_ordered_field',
         ...
     )
-
-Add django-ordered-field's URL patterns:
-
-.. code-block:: python
-
-    from django_ordered_field import urls as django_ordered_field_urls
-
-
-    urlpatterns = [
-        ...
-        url(r'^', include(django_ordered_field_urls)),
-        ...
-    ]
 
 Features
 --------
@@ -56,10 +48,8 @@ Features
 TODO
 --------
 
-* Add tests - missing for some detail.collection functions
+* Add tests - Missing for OrderedField. And try to hit all paths
 * Look for missing test for regular use cases
-* Look for a way to easily query for last element
-* Look for easy ways to move to last position
 
 Running Tests
 -------------
@@ -74,6 +64,12 @@ Does the code actually work?
 
 Credits
 -------
+
+Based on django-positions (it did not work for django 2):
+
+*  django-positions_
+
+.. _django-positions: https://github.com/jpwatts/django-positions
 
 Tools used in rendering this package:
 
