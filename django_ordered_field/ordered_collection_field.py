@@ -1,6 +1,6 @@
 from django.db import models
-
 from .ordered_field import OrderedField
+
 
 class OrderedCollectionField(OrderedField):
 
@@ -20,8 +20,8 @@ class OrderedCollectionField(OrderedField):
         self.parent_link = parent_link
         self._collection_changed = None
 
-    def contribute_to_class(self, cls, name):
-        super(OrderedCollectionField, self).contribute_to_class(cls, name)
+    def contribute_to_class(self, cls, name, private_only=False):
+        super(OrderedCollectionField, self).contribute_to_class(cls, name, private_only)
 
     def _get_collection(self, model_instance):
         filters = {}
@@ -41,7 +41,6 @@ class OrderedCollectionField(OrderedField):
     def get_queryset(self, model_instance):
         return self._get_collection(model_instance)
 
-
     def update_on_save(self, sender, instance, created, **kwargs):
         collection_changed = self._collection_changed
         self._collection_changed = None
@@ -53,23 +52,11 @@ class OrderedCollectionField(OrderedField):
 
         created = collection_changed or created
         super(OrderedCollectionField, self).update_on_save(
-            sender, instance, created, (current_value, updated_value), **kwargs)\
-
+            sender, instance, created, (current_value, updated_value), **kwargs)
 
     def pre_save(self, model_instance, add):
         add = self._collection_changed_then_delete_instance(model_instance, add)
         return super(OrderedCollectionField, self).pre_save(model_instance, add)
-
-    def _has_collection_changed(self, model_instance, previous_instance, collection):
-        if previous_instance is None:
-            return False
-        for field_name in collection:
-            field = model_instance._meta.get_field(field_name)
-            current_field_value = getattr(model_instance, field.attname)
-            previous_field_value = getattr(previous_instance, field.attname)
-            if previous_field_value != current_field_value:
-                return True
-        return False
 
     def _collection_changed_then_delete_instance(self, model_instance, add):
         if add or not self.collection:
@@ -78,12 +65,23 @@ class OrderedCollectionField(OrderedField):
         try:
             previous_instance = type(model_instance)._default_manager.get(pk=model_instance.pk)
         except models.ObjectDoesNotExist:
-            add = True  # New instance if no previous collection. # TODO: try to actually hit this one
+            add = True  # New instance if no previous collection.TODO: try to actually hit this one
         self._collection_changed = self._has_collection_changed(
-            model_instance, previous_instance, self.collection)
+            model_instance, previous_instance)
         if self._collection_changed:
             self._remove_from_collection(previous_instance)
         return add
+
+    def _has_collection_changed(self, model_instance, previous_instance):
+        if previous_instance is None:
+            return False
+        for field_name in self.collection:
+            field = model_instance._meta.get_field(field_name)
+            current_field_value = getattr(model_instance, field.attname)
+            previous_field_value = getattr(previous_instance, field.attname)
+            if previous_field_value != current_field_value:
+                return True
+        return False
 
     def _remove_from_collection(self, model_instance):
         updates = {self.name: models.F(self.name) - 1}
@@ -92,7 +90,7 @@ class OrderedCollectionField(OrderedField):
         queryset = self._get_collection(model_instance)
         queryset.filter(**{'%s__gt' % self.name: current}).update(**updates)
 
-    def _get_cleaned_current_and_updated_values(self, add, model_instance, cache_name):
+    def _get_cleaned_current_and_updated_values(self, add, model_instance, cache_name, values=None):
         current_value, updated_value = getattr(model_instance, cache_name)
 
         if self._collection_changed:

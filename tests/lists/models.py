@@ -18,4 +18,4 @@ class Item(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return self.name + " (List: " + self.list.name + ", position: " + str(self.order) + ")"
+        return str(self.name) + " (List: " + self.list.name + ", position: " + str(self.order) + ")"

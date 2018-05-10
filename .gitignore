@@ -45,3 +45,5 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+tests/detail_deprecated/
+django_ordered_field/detail_deprecated/

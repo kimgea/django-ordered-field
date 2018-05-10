@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from tests.multi_ordered.models import List, Item
 
+
 class ChangeMultiCollectionTests(TestCase):
     def setUp(self):
         list_1 = List(name="list one")
@@ -15,7 +16,6 @@ class ChangeMultiCollectionTests(TestCase):
         item_1_2.list = list_1
         item_1_2.sub_coll = 2
         item_1_2.save()
-
 
         list_2 = List(name="list one")
         list_2.save()
@@ -34,4 +34,3 @@ class ChangeMultiCollectionTests(TestCase):
                       values_list("list", "order", "id"))
         expected_result = [(1, 0, 2), (2, 0, 3), (2, 1, 1)]
         self.assertEqual(result, expected_result)
-        #self.assertTrue(False)

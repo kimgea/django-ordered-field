@@ -47,10 +47,10 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='django-ordered-field',
     version=version,
-    description="""Django field arange  model instances in an ordered fashion""",
+    description="""Django field arrange model instances in an ordered fashion""",
     long_description=readme + '\n\n' + history,
     author='Kim-Georg Aase',
-    author_email='kim.georg.aase@gmail.com',
+    author_email='...',
     url='https://github.com/kimgea/django-ordered-field',
     packages=[
         'django_ordered_field',
@@ -62,13 +62,10 @@ setup(
     keywords='django-ordered-field',
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',

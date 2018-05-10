@@ -3,24 +3,27 @@ from django.utils.timezone import now
 from django.db.models.fields.mixins import FieldCacheMixin
 from django.db.models.signals import (post_delete, post_save, pre_delete)
 
+
 class OrderedField(models.IntegerField, FieldCacheMixin):
 
     def __init__(self, verbose_name=None, name=None,
                  default=-1, update_auto_now=True,
                  *args, **kwargs):
         if 'unique' in kwargs:
-            raise TypeError("{0} can't have a unique constraint.".
-                            format(self.__class__.__name__))    # TODO; hit it
+            raise TypeError(
+                "{0} can't have a unique constraint.".
+                format(self.__class__.__name__))    # TODO; hit it
         super(OrderedField, self).__init__(
             verbose_name=verbose_name, name=name, default=default, *args, **kwargs)
         self.update_auto_now = update_auto_now
 
-    def contribute_to_class(self, cls, name):
-        super(OrderedField, self).contribute_to_class(cls, name)
+    def contribute_to_class(self, cls, name, private_only=False):
+        super(OrderedField, self).contribute_to_class(cls, name, private_only)
 
         for constraint in cls._meta.unique_together:
             if self.name in constraint:
-                raise TypeError("{0} can't be part of a unique constraint.".
+                raise TypeError(
+                    "{0} can't be part of a unique constraint.".
                     format(self.__class__.__name__))    # TODO: Hit it
         setattr(cls, self.name, self)
         pre_delete.connect(self.prepare_delete, sender=cls)
@@ -43,9 +46,9 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
     def get_next_sibling(self, model_instance):
         try:
             return self.get_queryset(model_instance). \
-                filter(**{'%s__gt' % self.name:
-                              getattr(model_instance, self.get_cache_name())[0]})[0]
-        except:
+                filter(**{'%s__gt' % self.name: getattr(
+                    model_instance, self.get_cache_name())[0]})[0]
+        except IndexError:
             return None
 
     def prepare_delete(self, sender, instance, **kwargs):
@@ -61,8 +64,8 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         if next_sibling_pk:
             try:
                 next_sibling = type(instance)._default_manager.get(pk=next_sibling_pk)
-            except:
-                next_sibling = None # TODO: try to hit this one
+            except self.model.DoesNotExist:
+                next_sibling = None  # TODO: try to hit this one
             if next_sibling:
                 queryset = self.get_queryset(next_sibling)
                 current = getattr(instance, self.get_cache_name())[0]
@@ -72,7 +75,7 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         setattr(instance, '_next_sibling_pk', None)
 
     def update_on_save(self, sender, instance, created, values=None, **kwargs):
-        current_value, updated_value = self.get_values(instance, self.get_cache_name(), values)
+        current_value, updated_value = get_values(instance, self.get_cache_name(), values)
 
         if updated_value is None and created:
             updated_value = -1  # TODO: try to make a test that hit this one
@@ -106,11 +109,11 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         current_value, updated_value = self._get_cleaned_current_and_updated_values(
             add, model_instance, cache_name)
 
-        is_new = current_value is None # NB: not the same as add
+        is_new = current_value is None  # NB: not the same as add
         min_position, max_position = self._get_max_min_positions(
             model_instance, is_new)
 
-        position = self._position_boundary_checks(
+        position = position_boundary_checks(
             add, updated_value, min_position, max_position)
 
         if add and position == max_position:
@@ -122,14 +125,13 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
     def _get_cleaned_current_and_updated_values(
             self, add, model_instance, cache_name, values=None):
 
-        current_value, updated_value = self.get_values(model_instance, cache_name, values)
+        current_value, updated_value = get_values(model_instance, cache_name, values)
 
         if add and current_value is not None:
-            # some cleanup if adding new record but current_value has an exicting value
+            # some cleanup if adding new record but current_value has an existing value
             if updated_value is None:
                 updated_value = current_value
             current_value = None
-
 
         # existing instance, position not modified; no cleanup required
         if current_value is not None and updated_value is None:
@@ -140,25 +142,7 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         if updated_value is None:
             updated_value = -1
 
-        return (current_value, updated_value)
-
-    def _position_boundary_checks(self, add, current_value, min_position, max_position):
-        if add and (current_value == -1 or current_value >= max_position):
-            return max_position
-
-        if max_position >= current_value >= min_position:
-            # positive position; valid index
-            return current_value
-        elif current_value > max_position:
-            # positive position; invalid index
-            return max_position
-        elif abs(current_value) <= (max_position + 1):
-            # negative position; valid index
-            # Add 1 to max_position to make this behave like a negative lists index.
-            # -1 means the last position, not the last position minus 1
-            return max_position + 1 + current_value
-        # negative position; invalid index
-        return min_position
+        return current_value, updated_value
 
     def _get_max_min_positions(self, model_instance, is_new):
         current_count = self.get_queryset(model_instance).count()
@@ -166,7 +150,7 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
             max_position = current_count
         else:
             max_position = current_count - 1
-        return (0, max_position)
+        return 0, max_position
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -190,8 +174,28 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         instance.__dict__[self.name] = value  # Django 1.10 fix for deferred fields #TODO: ???
         setattr(instance, cache_name, (current, updated))
 
-    def get_values(self, model_instance, cache_name, values=None):
-        if values is None:
-            return getattr(model_instance, cache_name)
-        else:
-            return values   # not safe from people sending in wrong stuff
+
+def get_values(model_instance, cache_name, values=None):
+    if values is None:
+        return getattr(model_instance, cache_name)
+    else:
+        return values   # not safe from people sending in wrong stuff
+
+
+def position_boundary_checks(add, current_value, min_position, max_position):
+    if add and (current_value == -1 or current_value >= max_position):
+        return max_position
+
+    if max_position >= current_value >= min_position:
+        # positive position; valid index
+        return current_value
+    elif current_value > max_position:
+        # positive position; invalid index
+        return max_position
+    elif abs(current_value) <= (max_position + 1):
+        # negative position; valid index
+        # Add 1 to max_position to make this behave like a negative lists index.
+        # -1 means the last position, not the last position minus 1
+        return max_position + 1 + current_value
+    # negative position; invalid index
+    return min_position

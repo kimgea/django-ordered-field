@@ -15,7 +15,7 @@ class ListChangeOrderTest(TestCase):
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
                       values_list("list", "order", "id"))
-        expected_result = [(1,0,2),(1,1,1),(1,2,3),(1,3,4),(1,4,5)]
+        expected_result = [(1, 0, 2), (1, 1, 1), (1, 2, 3), (1, 3, 4), (1, 4, 5)]
         self.assertEqual(result, expected_result)
 
     def test_change_order_first_to_middle(self):
@@ -45,7 +45,7 @@ class ListChangeOrderTest(TestCase):
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
                       values_list("list", "order", "id"))
-        expected_result = [(1,0,1),(1,1,3),(1,2,2),(1,3,4),(1,4,5)]
+        expected_result = [(1, 0, 1), (1, 1, 3), (1, 2, 2), (1, 3, 4), (1, 4, 5)]
         self.assertEqual(result, expected_result)
 
     def test_change_order_middle_one_down(self):
@@ -55,7 +55,7 @@ class ListChangeOrderTest(TestCase):
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
                       values_list("list", "order", "id"))
-        expected_result = [(1,0,1),(1,1,2),(1,2,4),(1,3,3),(1,4,5)]
+        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 4), (1, 3, 3), (1, 4, 5)]
         self.assertEqual(result, expected_result)
 
     def test_change_order_middle_to_first(self):
@@ -65,7 +65,7 @@ class ListChangeOrderTest(TestCase):
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
                       values_list("list", "order", "id"))
-        expected_result = [(1,0,3),(1,1,1),(1,2,2),(1,3,4),(1,4,5)]
+        expected_result = [(1, 0, 3), (1, 1, 1), (1, 2, 2), (1, 3, 4), (1, 4, 5)]
         self.assertEqual(result, expected_result)
 
     def test_change_order_middle_to_last(self):
@@ -75,7 +75,7 @@ class ListChangeOrderTest(TestCase):
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
                       values_list("list", "order", "id"))
-        expected_result = [(1,0,1),(1,1,2),(1,2,4),(1,3,5),(1,4,3)]
+        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 4), (1, 3, 5), (1, 4, 3)]
         self.assertEqual(result, expected_result)
 
     def test_change_order_last_to_second_last(self):
@@ -85,7 +85,7 @@ class ListChangeOrderTest(TestCase):
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
                       values_list("list", "order", "id"))
-        expected_result = [(1,0,1),(1,1,2),(1,2,3),(1,3,5),(1,4,4)]
+        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 3), (1, 3, 5), (1, 4, 4)]
         self.assertEqual(result, expected_result)
 
     def test_change_order_last_to_middle(self):

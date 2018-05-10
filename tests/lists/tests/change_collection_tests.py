@@ -10,7 +10,7 @@ class ChangeCollectionTest(TestCase):
 
     def test_change_collection_to_back(self):
         list2 = List.objects.filter(pk=2).first()
-        #for i in Item.objects.all():
+        # for i in Item.objects.all():
         #    print(i.__dict__)
         item = Item.objects.filter(list=1, order=0).first()
         item.list = list2
