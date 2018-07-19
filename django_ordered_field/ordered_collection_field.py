@@ -54,6 +54,12 @@ class OrderedCollectionField(OrderedField):
         super(OrderedCollectionField, self).update_on_save(
             sender, instance, created, (current_value, updated_value), **kwargs)
 
+    """def update_pre_save(self, sender, instance, **kwargs):
+
+        super(OrderedCollectionField, self).update_on_save(
+            sender, instance, values, **kwargs)"""
+
+
     def pre_save(self, model_instance, add):
         add = self._collection_changed_then_delete_instance(model_instance, add)
         return super(OrderedCollectionField, self).pre_save(model_instance, add)

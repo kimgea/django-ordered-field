@@ -14,8 +14,8 @@ class ListInsertTest(TestCase):
         item_1_1.save()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 7), (1, 1, 1), (1, 2, 2), (1, 3, 3), (1, 4, 4), (1, 5, 5)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 7), ("a", 1, 1, 1, 1), ("a", 1, 1, 2, 2), ("a", 1, 1, 3, 3), ("a", 1, 1, 4, 4), ("a", 1, 1, 5, 5)]
         self.assertEqual(result, expected_result)
 
     def test_insert_second(self):
@@ -24,8 +24,8 @@ class ListInsertTest(TestCase):
         item_1_1.save()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 1), (1, 1, 7), (1, 2, 2), (1, 3, 3), (1, 4, 4), (1, 5, 5)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 1), ("", 0, 1, 1, 7), ("a", 1, 1, 2, 2), ("a", 1, 1, 3, 3), ("a", 1, 1, 4, 4), ("a", 1, 1, 5, 5)]
         self.assertEqual(result, expected_result)
 
     def test_insert_middle(self):
@@ -34,8 +34,8 @@ class ListInsertTest(TestCase):
         item_1_1.save()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 7), (1, 3, 3), (1, 4, 4), (1, 5, 5)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 1), ("", 0, 1, 1, 2), ("", 0, 1, 2, 7), ("a", 1, 1, 3, 3), ("a", 1, 1, 4, 4), ("a", 1, 1, 5, 5)]
         self.assertEqual(result, expected_result)
 
     def test_insert_seccond_last(self):
@@ -44,8 +44,8 @@ class ListInsertTest(TestCase):
         item_1_1.save()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 3), (1, 3, 4), (1, 4, 7), (1, 5, 5)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 1), ("", 0, 1, 1, 2), ("", 0, 1, 2, 3), ("", 0, 1, 3, 4), ("", 0, 1, 4, 7), ("a", 1, 1, 5, 5)]
         self.assertEqual(result, expected_result)
 
     def test_insert_last(self):
@@ -54,6 +54,6 @@ class ListInsertTest(TestCase):
         item_1_1.save()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 3), (1, 3, 4), (1, 4, 5), (1, 5, 7)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 1), ("", 0, 1, 1, 2), ("", 0, 1, 2, 3), ("", 0, 1, 3, 4), ("", 0, 1, 4, 5), ("", 0, 1, 5, 7)]
         self.assertEqual(result, expected_result)

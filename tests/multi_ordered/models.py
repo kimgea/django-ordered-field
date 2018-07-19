@@ -18,5 +18,21 @@ class Item(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    """__original_order = None
+
+    def __init__(self, *args, **kwargs):
+        super(Item, self).__init__(*args, **kwargs)
+        self.__original_order = self.order"""
+
     def __unicode__(self):
         return str(self.name) + " (List: " + self.list.name + ", position: " + str(self.order) + ")"
+
+    """def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+
+        if self.order != self.__original_order:
+            pass
+
+        instance = super(Item, self).save(force_insert, force_update, using, update_fields)
+        self.__original_order = self.order
+        return instance"""

@@ -1,1 +1,1 @@
-from .tests import ChangeMultiCollectionTests
+#from .tests import ChangeMultiCollectionTests

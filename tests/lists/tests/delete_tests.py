@@ -13,8 +13,8 @@ class ListDeleteTest(TestCase):
         item.delete()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 2), (1, 1, 3), (1, 2, 4), (1, 3, 5)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("a", 1, 1, 0, 2), ("a", 1, 1, 1, 3), ("a", 1, 1, 2, 4), ("a", 1, 1, 3, 5)]
         self.assertEqual(result, expected_result)
 
     def test_delete_second(self):
@@ -22,8 +22,8 @@ class ListDeleteTest(TestCase):
         item.delete()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 1), (1, 1, 3), (1, 2, 4), (1, 3, 5)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 1), ("a", 1, 1, 1, 3), ("a", 1, 1, 2, 4), ("a", 1, 1, 3, 5)]
         self.assertEqual(result, expected_result)
 
     def test_delete_middle(self):
@@ -31,8 +31,8 @@ class ListDeleteTest(TestCase):
         item.delete()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 4), (1, 3, 5)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 1), ("", 0, 1, 1, 2), ("a", 1, 1, 2, 4), ("a", 1, 1, 3, 5)]
         self.assertEqual(result, expected_result)
 
     def test_delete_second_last(self):
@@ -40,8 +40,8 @@ class ListDeleteTest(TestCase):
         item.delete()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 3), (1, 3, 5)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 1), ("", 0, 1, 1, 2), ("", 0, 1, 2, 3), ("a", 1, 1, 3, 5)]
         self.assertEqual(result, expected_result)
 
     def test_delete_last(self):
@@ -49,6 +49,6 @@ class ListDeleteTest(TestCase):
         item.delete()
 
         result = list(Item.objects.filter(list=1).order_by("list", "order").
-                      values_list("list", "order", "id"))
-        expected_result = [(1, 0, 1), (1, 1, 2), (1, 2, 3), (1, 3, 4)]
+                      values_list("updated_by", "order_changed_count", "list", "order", "id"))
+        expected_result = [("", 0, 1, 0, 1), ("", 0, 1, 1, 2), ("", 0, 1, 2, 3), ("", 0, 1, 3, 4)]
         self.assertEqual(result, expected_result)

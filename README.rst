@@ -58,6 +58,22 @@ And your ready to go.
 Features
 --------
 
+* OrderedField will keep correct ordering between all instances in the enire table
+* OrderedCollectionField can seperate the table in different collection based on one or more columns and keep order in each collection
+* update_auto_now will update all other fields containing auto_now=True with django.utils.timezone.now if it is set to True
+* extra_field_updates can be used to update other fields when their order is changed
+
+Limitations
+--------
+
+* Must user model.save(). queryset methods does ot work
+
+BUGGS???
+--------
+
+* Update extra fields when changing collection??
+* model.save() multiple times on same object without getting newest values from db fails if a field in extra_field_updates depends on current value... fix?? Migth work if self updates are moved to pre_save....
+* test manualy changing extra fields at same time as changing order... what happens. What should happen
 
 TODO
 --------
@@ -65,6 +81,7 @@ TODO
 * Add tests - Missing for OrderedField. And try to hit all paths
 * Look for missing test for regular use cases
 * Make example project
+
 
 Running Tests
 -------------

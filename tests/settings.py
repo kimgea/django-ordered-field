@@ -26,6 +26,7 @@ INSTALLED_APPS = [
 
     "tests.lists",
     "tests.multi_ordered",
+    "tests.ordered_table",
 ]
 
 SITE_ID = 1

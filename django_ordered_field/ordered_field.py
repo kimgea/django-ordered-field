@@ -1,13 +1,14 @@
+import copy
 from django.db import models
 from django.utils.timezone import now
 from django.db.models.fields.mixins import FieldCacheMixin
-from django.db.models.signals import (post_delete, post_save, pre_delete)
+from django.db.models.signals import (post_delete, post_save, pre_delete, pre_save)
 
 
 class OrderedField(models.IntegerField, FieldCacheMixin):
 
-    def __init__(self, verbose_name=None, name=None,
-                 default=-1, update_auto_now=True,
+    def __init__(self, verbose_name=None, name=None, default=-1,
+                 update_auto_now=True, extra_field_updates=None,
                  *args, **kwargs):
         if 'unique' in kwargs:
             raise TypeError(
@@ -16,6 +17,7 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         super(OrderedField, self).__init__(
             verbose_name=verbose_name, name=name, default=default, *args, **kwargs)
         self.update_auto_now = update_auto_now
+        self.extra_field_updates = extra_field_updates if extra_field_updates is not None else {}
 
     def contribute_to_class(self, cls, name, private_only=False):
         super(OrderedField, self).contribute_to_class(cls, name, private_only)
@@ -28,6 +30,7 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         setattr(cls, self.name, self)
         pre_delete.connect(self.prepare_delete, sender=cls)
         post_delete.connect(self.update_on_delete, sender=cls)
+        pre_save.connect(self.update_pre_save, sender=cls)
         post_save.connect(self.update_on_save, sender=cls)
 
     def get_cache_name(self):
@@ -37,11 +40,22 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         return type(model_instance)._default_manager.all()  # TODO: check all()
 
     def extra_updates_on_change(self, model_instance, updates):
+        self._auto_now_field_update(model_instance, updates)
+        self._extra_updates(updates)
+
+    def _auto_now_field_update(self, model_instance, updates):
         if self.update_auto_now:
             date_now = now()
             for field in model_instance._meta.get_fields():
                 if getattr(field, 'auto_now', False):
                     updates[field.name] = date_now
+
+    def _extra_updates(self, updates):
+        for field_name, new_data in self.extra_field_updates.items():
+            if callable(new_data):
+                updates[field_name] = new_data()
+            else:
+                updates[field_name] = new_data
 
     def get_next_sibling(self, model_instance):
         try:
@@ -74,16 +88,34 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
                 queryset.filter(**{'%s__gt' % self.name: current}).update(**updates)
         setattr(instance, '_next_sibling_pk', None)
 
+    def update_pre_save(self, sender, instance, values=None, **kwargs):
+        current_value, updated_value = get_values(instance, self.get_cache_name(), values)
+
+        if current_value == updated_value or updated_value is None:
+            return  # Order was not changed
+
+        updates = {}
+        self.extra_updates_on_change(instance, updates)
+
+        for key, value in updates.items():
+            setattr(instance, key, value)
+
     def update_on_save(self, sender, instance, created, values=None, **kwargs):
         current_value, updated_value = get_values(instance, self.get_cache_name(), values)
 
-        if updated_value is None and created:
-            updated_value = -1  # TODO: try to make a test that hit this one
+        if current_value == updated_value:
+            return  # Order was not changed
+
+        """if updated_value is None and created:
+            updated_value = -1  # TODO: try to make a test that hit this one... Current hits it. Its wrong.... should it exit???"""
+        if current_value is None and created:
+            current_value = -1   # TODO: try to make a test that hit this one, was made from above
 
         queryset = self.get_queryset(instance).exclude(pk=instance.pk)
 
         updates = {}
         self.extra_updates_on_change(instance, updates)
+        #other_updates = copy.deepcopy(updates)
 
         if created:
             # increment positions gte updated or node moved from another collection
@@ -100,8 +132,29 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
                                           '%s__gte' % self.name: updated_value})
             updates[self.name] = models.F(self.name) + 1
 
+        #print(queryset.query)
         queryset.update(**updates)
+
+        #print(type(instance)._default_manager.filter(pk=instance.pk).query)
+        #print(updates)
+        #type(instance)._default_manager.filter(pk=instance.pk).update(**updates)
+
+        #updates = {}
+        #self.extra_updates_on_change(instance, updates)
+        #type(instance)._default_manager.filter(pk=instance.pk).update(**updates)
+
         setattr(instance, self.get_cache_name(), (updated_value, None))
+
+        # update self... TODO: try to fill it in pre_save to avoid updating this instance twice
+        #updates = {}
+        #self._extra_updates(updates)
+        #if updates: #  type(model_instance)._default_manager.all()
+            #instance.save(update_fields=updates)   # THIS FAILS  update_on_save is called again, with wrong values
+            #  type(instance)._default_manager.update_or_create(**updates)
+            #  type(instance)._default_manager.filter(pk=instance.pk).update(**updates)
+            # for key, value in updates.items():
+            #    setattr(instance, key, value)
+
 
     def pre_save(self, model_instance, add):
         cache_name = self.get_cache_name()
@@ -111,13 +164,13 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
 
         is_new = current_value is None  # NB: not the same as add
         min_position, max_position = self._get_max_min_positions(
-            model_instance, is_new)
+            model_instance, is_new) # TODO: refactor this. no need to return min. min is always 0
 
         position = position_boundary_checks(
             add, updated_value, min_position, max_position)
 
         if add and position == max_position:
-            setattr(model_instance, cache_name, (position, None))
+            setattr(model_instance, cache_name, (None, position))#(position, None)) #TODO: fixed some, but broke others
         else:
             setattr(model_instance, cache_name, (current_value, position))
         return position
@@ -135,7 +188,7 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
 
         # existing instance, position not modified; no cleanup required
         if current_value is not None and updated_value is None:
-            return current_value
+            return current_value, current_value
 
         # if updated is still unknown set the object to the last position,
         # either it is a new object or collection has been changed
