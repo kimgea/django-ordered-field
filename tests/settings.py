@@ -25,8 +25,10 @@ INSTALLED_APPS = [
     "django_ordered_field",
 
     "tests.lists",
-    "tests.multi_ordered",
+    "tests.multi_collection",
     "tests.ordered_table",
+    "tests.multi_order",
+    "tests.parent_link"
 ]
 
 SITE_ID = 1

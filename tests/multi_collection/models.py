@@ -14,9 +14,14 @@ class Item(models.Model):
     list = models.ForeignKey('List', related_name='items', on_delete=models.CASCADE)
     sub_coll = models.IntegerField()
     name = models.CharField(max_length=100)
-    order = OrderedCollectionField(collection='list')
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    order = OrderedCollectionField(collection=['list', 'sub_coll'],
+                                   extra_field_updates={
+                                       'order_changed_count': models.F("order_changed_count") + 1,
+                                   },
+                                   extra_field_change_collection_like_regular=True
+                                   )
+    order_changed_count = models.IntegerField(default=0)
+
 
     """__original_order = None
 

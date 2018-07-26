@@ -1,0 +1,3 @@
+from .update_tests import ChangeMultiCollectionTests
+from .insert_tests import InsertMultiCollectionTests
+from .delete_tests import DeleteMultiCollectionTest

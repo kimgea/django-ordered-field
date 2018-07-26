@@ -71,14 +71,17 @@ Limitations
 BUGGS???
 --------
 
-* Update extra fields when changing collection??
+* multi order delete not working. Looks like other order field not updated on delete. why?
 * model.save() multiple times on same object without getting newest values from db fails if a field in extra_field_updates depends on current value... fix?? Migth work if self updates are moved to pre_save....
-* test manualy changing extra fields at same time as changing order... what happens. What should happen
+
 
 TODO
 --------
 
-* Add tests - Missing for OrderedField. And try to hit all paths
+* Mor paren_link tests
+* Add test for updating values when changing collection
+* test manualy changing extra fields at same time as changing order... what happens. What should happen
+*--------
 * Look for missing test for regular use cases
 * Make example project
 

@@ -18,8 +18,8 @@ class ChangeCollectionTest(TestCase):
         item.save()
 
         result = list(Item.objects.order_by("list", "order").
-                      values_list("list", "order_changed_count", "order", "id"))
-        expected_result = [(1, 1, 0, 2), (1, 1, 1, 3), (1, 1, 2, 4), (1, 1, 3, 5), (2, 0, 0, 6), (2, 1, 1, 1)]
+                      values_list("list", "order_changed_count", "change_collection_count", "order", "id"))
+        expected_result = [(1, 1, 0, 0, 2), (1, 1, 0, 1, 3), (1, 1, 0, 2, 4), (1, 1, 0, 3, 5), (2, 0, 0, 0, 6), (2, 0, 1, 1, 1)]
         self.assertEqual(result, expected_result)
 
     def test_change_collection_to_front(self):
@@ -31,5 +31,5 @@ class ChangeCollectionTest(TestCase):
 
         result = list(Item.objects.order_by("list", "order").
                       values_list("list", "order_changed_count", "order", "id"))
-        expected_result = [(1, 1, 0, 2), (1, 1, 1, 3), (1, 1, 2, 4), (1, 1, 3, 5), (2, 1, 0, 1), (2, 1, 1, 6)]
+        expected_result = [(1, 1, 0, 2), (1, 1, 1, 3), (1, 1, 2, 4), (1, 1, 3, 5), (2, 0, 0, 1), (2, 1, 1, 6)]
         self.assertEqual(result, expected_result)
