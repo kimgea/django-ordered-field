@@ -1,5 +1,5 @@
 =============================
-django-ordered-field
+django-ordered-field  --- NOT READY FOR USAGE
 =============================
 
 .. image:: https://badge.fury.io/py/django-ordered-field.svg
