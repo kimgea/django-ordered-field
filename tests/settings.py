@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     "tests.proxy_model",
     "tests.many_to_many"
 ]
-
+argh
 SITE_ID = 1
 
 MIDDLEWARE = ()
