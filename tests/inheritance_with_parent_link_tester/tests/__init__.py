@@ -1,0 +1,6 @@
+from .update_tests import ChangeParentLinkTests
+from .update_two_tests import ChangeParentLinkTwoTests
+from .insert_tests import InsertParentLinkTests
+from .insert_two_tests import InsertParentLinkTwoTests
+from .delete_tests import DeleteParentLinkTest
+from .delete_two_tests import DeleteParentLinkTwoTest

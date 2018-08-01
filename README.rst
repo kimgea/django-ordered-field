@@ -66,22 +66,21 @@ Features
 Limitations
 --------
 
-* Must user model.save(). queryset methods does ot work
+* Must user model.save(). queryset methods does not work
+* Order field cant be unique or in an uniqu_togheter constraint
+
+Not in readme, but move to doc
+* Regular inheritance does not work when updating position by using parent class (works with parent_link). Other classes inheriting from it is also changed, and wrongly
 
 BUGGS???
 --------
 
-* multi order delete not working. Looks like other order field not updated on delete. why?
-* model.save() multiple times on same object without getting newest values from db fails if a field in extra_field_updates depends on current value... fix?? Migth work if self updates are moved to pre_save....
-
+* Inheritance. Looks like other models inheriting from same gets updated also, and wrongly
 
 TODO
 --------
 
-* Mor paren_link tests
-* Add test for updating values when changing collection
-* test manualy changing extra fields at same time as changing order... what happens. What should happen
-*--------
+* Test on different sql servers.... how???
 * Look for missing test for regular use cases
 * Make example project
 

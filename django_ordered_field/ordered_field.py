@@ -11,7 +11,7 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
 
     def __init__(self, verbose_name=None, name=None, default=-1,
                  update_auto_now=True, extra_field_updates=None,
-                 parent_link_name=None, *args, **kwargs): #TODO: rename parent_link_name, confusing with parent_link
+                 parent_link_name=None, *args, **kwargs): #TODO: rename parent_link_name, confusing with inheritance_with_parent_link_tester
         if 'unique' in kwargs:
             raise TypeError(
                 "{0} can't have a unique constraint.".
@@ -41,10 +41,22 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
                     "{0} can't be part of a unique constraint.".
                     format(self.__class__.__name__))
         setattr(cls, self.name, self)
-        pre_delete.connect(self.prepare_delete, sender=cls)
-        post_delete.connect(self.update_on_delete, sender=cls)
-        pre_save.connect(self.update_pre_save, sender=cls)
-        post_save.connect(self.update_on_save, sender=cls)
+        self.add_signals(cls)
+
+    def add_signals(self, cls):
+        prefix = ".".join([cls._meta.label_lower, self.name])
+        """pre_delete.connect(self.prepare_delete,
+                           sender=cls,
+                           dispatch_uid=".".join([prefix, "pre_delete"]))"""
+        post_delete.connect(self.update_on_delete,
+                            sender=cls,
+                            dispatch_uid=".".join([prefix, "post_delete"]))
+        pre_save.connect(self.update_pre_save,
+                         sender=cls,
+                         dispatch_uid=".".join([prefix, "pre_save"]))
+        post_save.connect(self.update_on_save,
+                          sender=cls,
+                          dispatch_uid=".".join([prefix, "post_save"]))
 
     def get_cache_name(self):
         return self.name + "_cache"     # TODO: check if this si correct
@@ -52,7 +64,12 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
     def get_queryset(self, model_instance):
         model = type(model_instance)
         if self.parent_link_name is not None:
-            model = model._meta.get_field(self.parent_link_name).remote_field.model
+            try:    # TODO: clean, and make one place
+                model = model._meta.get_field(self.parent_link_name).remote_field.model
+            except:
+                if model_instance.__class__.__name__.lower() + "_ptr" != self.parent_link_name:
+                    #print(model_instance.__class__.__name__.lower() + "_ptr")
+                    model = model._meta.get_field(self.parent_link_name).remote_field.model
         return model._default_manager.all()  # TODO: check all()
 
     def extra_updates_on_change(self, model_instance, updates):
@@ -81,23 +98,15 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         except IndexError:
             return None
 
-    def prepare_delete(self, sender, instance, **kwargs):
-        set_next_sibling(instance, self.get_next_sibling(instance), self.name)
-
     def update_on_delete(self, sender, instance, **kwargs):
-        next_sibling_pk = getattr(instance, '_'+self.name+'_next_sibling_pk', None)
-        if next_sibling_pk:
-            try:
-                next_sibling = type(instance)._default_manager.get(pk=next_sibling_pk)
-            except self.model.DoesNotExist:
-                next_sibling = None  # TODO: Order probably becomes holey, clean up... iterate until end to find next sibling or stop at end
-            if next_sibling:
-                queryset = self.get_queryset(next_sibling)
-                current = getattr(instance, self.get_cache_name())[0]
-                updates = {self.name: models.F(self.name) - 1}
-                self.extra_updates_on_change(instance, updates)
-                queryset.filter(**{'%s__gt' % self.name: current}).update(**updates)
-        setattr(instance, '_'+self.name+'_next_sibling_pk', None)
+        next_sibling = self.get_next_sibling(instance)
+        if next_sibling:
+            decrement_by = 1
+            queryset = self.get_queryset(next_sibling)
+            current = getattr(instance, self.get_cache_name())[0]
+            updates = {self.name: models.F(self.name) - decrement_by}
+            self.extra_updates_on_change(instance, updates)
+            queryset.filter(**{'%s__gt' % self.name: current}).update(**updates)
 
     def update_pre_save(self, sender, instance, values=None, updates=None, **kwargs):
         current_value, updated_value = get_values(instance, self.get_cache_name(), values)
@@ -241,11 +250,22 @@ def get_values(model_instance, cache_name, values=None):
     else:
         return values   # not safe from people sending in wrong stuff
 
-def set_next_sibling(instance, next_sibling, name):
-    if next_sibling:
-        setattr(instance, '_'+name+'_next_sibling_pk', next_sibling.pk)
-    else:
-        setattr(instance, '_'+name+'_next_sibling_pk', None)
 
+# TODO: look for a way to have only a single add_signals.... check if it can look inside class._meta to deside signals to add from that
+# Best would be to get it inside the function...
 
+def add_signals_for_proxy(class_with_function, sender_class, field_name):
+    prefix = ".".join([sender_class._meta.label_lower, field_name])
+    post_delete.connect(class_with_function._meta.get_field(field_name).update_on_delete,
+                        sender=sender_class,
+                        dispatch_uid=".".join([prefix, "post_delete"]))
+    add_signals(class_with_function, sender_class, field_name)
 
+def add_signals(class_with_function, sender_class, field_name):
+    prefix = ".".join([sender_class._meta.label_lower, field_name])
+    pre_save.connect(class_with_function._meta.get_field(field_name).update_pre_save,
+                     sender=sender_class,
+                     dispatch_uid=".".join([prefix, "pre_save"]))
+    post_save.connect(class_with_function._meta.get_field(field_name).update_on_save,
+                      sender=sender_class,
+                      dispatch_uid=".".join([prefix, "post_save"]))
