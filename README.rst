@@ -80,6 +80,7 @@ BUGGS???
 TODO
 --------
 
+* Improve Tox and Travis builds
 * Test on different sql servers.... how???
 * Look for missing test for regular use cases
 * Make example project
