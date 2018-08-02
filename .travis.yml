@@ -2,17 +2,23 @@
 
 language: python
 
-python:
-  - "3.6"
-
-env:
-  - TOX_ENV=py36-django-20-sqlite
-
 matrix:
   fast_finish: true
+    include:
+      - python: 3.6
+      env: TOX_ENV=py36-django-20 DATABASE_URL="postgres://postgres@locaalhost:5432/py36-django-20"
+      - python: 3.6
+      env: TOX_ENV=lint
+
+
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -r requirements_test.txt
+
+before_script:
+    - coverage erase
+    - bash -c "if [[ \"$DATABASE_URL\" == postgres* ]]; then psql -c 'create database \"$TOXENV\";' -U postgres; fi"
+    - bash -c "if [[ \"$DATABASE_URL\" == mysql* ]]; then mysql -e 'create database IF NOT EXISTS \`$TOXENV\`;'; fi"
 
 # command to run tests using coverage, e.g. python setup.py test
 script: tox -e $TOX_ENV
