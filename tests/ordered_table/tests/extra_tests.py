@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.db import models
 
 from django_ordered_field import OrderedField
-from django_ordered_field.ordered_field import set_next_sibling
+#from django_ordered_field.ordered_field import set_next_sibling
 
 from tests.ordered_table.models import HearthstoneRanking
 from tests.ordered_table.tests.helper import set_up_helper
@@ -58,17 +58,9 @@ class ListExtraTest(TestCase):
             asserted = True
         self.assertTrue(asserted)
 
-    def test_set_Hmmmm(self):
-        # TODO: Unfinished
+    """def test_delete_when_next_sibling_has_been_deleted_by_other_process(self):
         def prepare_delete_new(sender, instance, **kwargs):
             self.assertEqual(item.rank, -1)
-
-        """result = list(HearthstoneRanking.objects.order_by("rank").
-                      values_list("rank", "id"))
-        print(result)"""
-
-        item = HearthstoneRanking.objects.filter(rank=4).first()
-        item.delete()
 
         item = HearthstoneRanking.objects.filter(rank=0).first()
         next_sibling = item._meta.get_field("rank").get_next_sibling(item)
@@ -77,10 +69,31 @@ class ListExtraTest(TestCase):
         OrderedField.prepare_delete = prepare_delete_new
         item.delete()
 
-        """result = list(HearthstoneRanking.objects.order_by("rank").
+        result = list(HearthstoneRanking.objects.order_by("rank").
                       values_list("rank", "id"))
-        print(result)"""
-        self.assertEqual(1, 1)
+        expected_result = [(0, 3), (1, 4), (2, 5)]
+        self.assertEqual(result, expected_result)"""
+
+    """def test_delete_when_next_siblings_has_been_deleted_by_other_process(self):
+        def prepare_delete_new(sender, instance, **kwargs):
+            self.assertEqual(item.rank, -1)
+
+        item = HearthstoneRanking.objects.filter(rank=0).first()
+
+        next_sibling = item._meta.get_field("rank").get_next_sibling(item)
+        set_next_sibling(item, next_sibling, item._meta.get_field("rank").name)
+        next_sibling.delete()
+        next_sibling = item._meta.get_field("rank").get_next_sibling(item)
+        set_next_sibling(item, next_sibling, item._meta.get_field("rank").name)
+        next_sibling.delete()
+
+        OrderedField.prepare_delete = prepare_delete_new
+        item.delete()
+
+        result = list(HearthstoneRanking.objects.order_by("rank").
+                      values_list("rank", "id"))
+        expected_result = [(0, 4), (1, 5)]
+        self.assertEqual(result, expected_result)"""
 
 
 

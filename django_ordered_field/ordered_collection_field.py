@@ -1,6 +1,8 @@
 from django.db import models
 from .ordered_field import OrderedField
 
+from django.core.exceptions import FieldDoesNotExist
+
 
 class OrderedCollectionField(OrderedField):
 
@@ -60,7 +62,12 @@ class OrderedCollectionField(OrderedField):
                 filters[field.name] = field_value
         model = type(model_instance)
         if self.parent_link_name is not None:
-            model = model._meta.get_field(self.parent_link_name).remote_field.model
+            try:    # TODO: clean, and make one place
+                model = model._meta.get_field(self.parent_link_name).remote_field.model
+            except:
+                if model_instance.__class__.__name__.lower() + "_ptr" != self.parent_link_name:
+                    #print(model_instance.__class__.__name__.lower() + "_ptr")
+                    model = model._meta.get_field(self.parent_link_name).remote_field.model
         return model._default_manager.filter(**filters)
 
     def get_queryset(self, model_instance):
