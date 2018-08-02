@@ -1,5 +1,5 @@
-from tests.parent_link.models import (Course, Video, Quiz)
-from tests.parent_link.models import (VideoTwo, QuizTwo)
+from tests.inheritance.models import (Course, Video, Quiz)
+from tests.inheritance.models import (VideoTwo, QuizTwo)
 
 
 def set_up_helper():
