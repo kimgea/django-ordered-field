@@ -75,15 +75,21 @@ Not in readme, but move to doc
 BUGGS???
 --------
 
-* Inheritance. Looks like other models inheriting from same gets updated also, and wrongly
 
 TODO
 --------
 
-* Improve Tox and Travis builds
-* Test on different sql servers.... how???
-* Look for missing test for regular use cases
-* Make example project
+* naming of instance variables might be confusing, look at it.
+* Same for naming of add_signals. Make custom named function for each use case
+* Look for more refactoring
+* Finish setup.py
+* Check requirements.txt
+* Add documentation
+* Cleanup readme
+* Check project files
+* Register on pip
+* Register on django
+* Make example project - eh, probably skiping it
 
 
 Running Tests

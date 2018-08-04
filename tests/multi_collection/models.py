@@ -18,7 +18,7 @@ class Item(models.Model):
                                    extra_field_updates={
                                        'order_changed_count': models.F("order_changed_count") + 1,
                                    },
-                                   extra_field_change_collection_like_regular=True
+                                   self_updates_on_collection_change_like_regular=True
                                    )
     order_changed_count = models.IntegerField(default=0)
 
