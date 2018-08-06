@@ -70,6 +70,7 @@ Limitations
 * Order field cant be unique or in an uniqu_togheter constraint
 
 Not in readme, but move to doc
+
 * Regular inheritance does not work when updating position by using parent class (works with parent_link). Other classes inheriting from it is also changed, and wrongly
 
 BUGGS???
@@ -79,6 +80,7 @@ BUGGS???
 TODO
 --------
 
+* Collection change update parameter... look for a better name
 * naming of instance variables might be confusing, look at it.
 * Same for naming of add_signals. Make custom named function for each use case
 * Look for more refactoring

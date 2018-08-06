@@ -28,7 +28,7 @@ def auto_now_field_update(model_instance, updates):
             updates[field.name] = date_now
 
 
-def position_boundary_checks(add, current_value, max_position):
+def position_boundary_checks(current_value, max_position):
     if current_value >= max_position:
         return max_position
     elif max_position >= current_value >= 0:
@@ -65,3 +65,12 @@ def get_cleaned_current_and_updated_values(
     # But if it hapens, then add code to handle it
 
     return current_value, updated_value
+
+
+def order_is_not_changed(current_value, updated_value):
+    return current_value == updated_value or updated_value is None
+
+
+def should_instance_be_updated(instance):
+    # Do not update extra fields on self if self is new
+    return instance.pk is None or instance._state.adding

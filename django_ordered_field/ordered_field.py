@@ -4,7 +4,8 @@ from django.core.exceptions import FieldDoesNotExist
 
 from django_ordered_field.common import (get_values, generate_parent_link_name, extra_updates,
                                          auto_now_field_update, position_boundary_checks,
-                                         get_cleaned_current_and_updated_values)
+                                         get_cleaned_current_and_updated_values,
+                                         order_is_not_changed, should_instance_be_updated)
 from django_ordered_field.signals import add_signals_full
 
 
@@ -51,6 +52,8 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         return self.get_model(model_instance)._default_manager
 
     def get_model(self, model_instance):
+        if model_instance is None:
+            return
         if self.parent_link_name is not None:
             return self.get_parent_model(model_instance)
         return type(model_instance)
@@ -69,19 +72,22 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         extra_updates(updates, self.extra_field_updates)
 
     def auto_now_field_update(self, model_instance, updates):
-        if not self.update_auto_now:
-            return
-        auto_now_field_update(model_instance, updates)
+        if self.update_auto_now:
+            auto_now_field_update(model_instance, updates)
 
     def post_delete_handler(self, sender, instance, **kwargs):
         next_sibling = self.get_next_sibling(instance)
-        if not next_sibling:
-            return
-        queryset = self.get_queryset(next_sibling)
         current = getattr(instance, self.get_cache_name())[0]
         updates = {self.name: models.F(self.name) - 1}
         self.extra_updates_on_change(instance, updates)
-        queryset.filter(**{'%s__gt' % self.name: current}).update(**updates)
+        self.update_sibling_affected_by_delete(current, next_sibling, updates)
+
+    def update_sibling_affected_by_delete(self, current, next_sibling, updates):
+        try:
+            queryset = self.get_queryset(next_sibling)
+            queryset.filter(**{'%s__gt' % self.name: current}).update(**updates)
+        except AttributeError as e:
+            return
 
     def get_next_sibling(self, model_instance):
         try:
@@ -92,10 +98,10 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
 
     def pre_save_handler(self, sender, instance, values=None, updates=None, **kwargs):
         current_value, updated_value = get_values(instance, self.get_cache_name(), values)
-        if current_value == updated_value or updated_value is None:
-            return  # Order was not changed
-        if (instance.pk is None or instance._state.adding):
-            return  # Do not update extra fields on self if self is new
+        if order_is_not_changed(current_value, updated_value):
+            return
+        if should_instance_be_updated(instance):
+            return
         if updates is None:
             # Inherited classes can send in custome update values
             # used for custom updates when item changes collection
@@ -111,9 +117,9 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
         if current_value is None and created:
             current_value = -1
         setattr(instance, self.get_cache_name(), (updated_value, None))
-        self.update_affected_siblings(instance, created, current_value, updated_value)
+        self.update_siblings_affected_by_save(instance, created, current_value, updated_value)
 
-    def update_affected_siblings(self, instance, created, current_value, updated_value):
+    def update_siblings_affected_by_save(self, instance, created, current_value, updated_value):
         queryset = self.get_queryset(instance).exclude(pk=instance.pk)
         updates = {}
         if created:
@@ -144,7 +150,7 @@ class OrderedField(models.IntegerField, FieldCacheMixin):
 
         is_new = current_value is None  # NB: not the same as add
         max_position = self.get_max_position(model_instance, is_new)
-        position = position_boundary_checks(add, updated_value, max_position)
+        position = position_boundary_checks(updated_value, max_position)
 
         if add and position == max_position:
             setattr(model_instance, cache_name, (None, position))
