@@ -22,7 +22,7 @@ class Item(models.Model):
                                        'order_changed_count': models.F("order_changed_count") + 1,
                                        'updated_by': get_loged_in_user
                                    },
-                                   extra_field_change_collection_updates={
+                                   self_updates_on_collection_change={
                                        'change_collection_count': models.F("change_collection_count") + 1
                                    })
     created = models.DateTimeField(auto_now_add=True)
