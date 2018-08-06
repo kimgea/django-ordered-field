@@ -51,12 +51,14 @@ Other fields updated when order is changed
 It is possible to specify other fields than the order field to be automatically updated when a field has its position changed by another field that was inserted/changed/deleted.
 
 The update_auto_now setting will make sure that all date/datetime related fields that are taged to be automatically updated on change will be updated when the order is changed. This setting is default on, so remember to turn ot off if it is not wanted.
+
 .. code-block:: python
 
     OrderedField(update_auto_now=True)
 
 
 The extra_field_updates is a dictionary and it is used to specify other field to be updated when the order field is changed by anothers position change.
+
 .. code-block:: python
 
     def get_loged_in_user():
@@ -68,6 +70,7 @@ The extra_field_updates is a dictionary and it is used to specify other field to
                                })
 
 The self_updates_on_collection_change parameter is used to specify fields to be updated when an instance changes collection. Unlike the extra_field_updates which is triggered when a records osition is changed when another field has its position changed the self_updates_on_collection_change works on the active instance and only when it changes collection.
+
 .. code-block:: python
 
     def get_loged_in_user():
@@ -79,6 +82,7 @@ The self_updates_on_collection_change parameter is used to specify fields to be 
                                })
 
 If self_updates_on_collection_change is the same as extra_field_updates like above then it is also possible to set the self_updates_on_collection_change_like_regular to True to avoid duplicating the settings.
+
 .. code-block:: python
 
     def get_loged_in_user():
