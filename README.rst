@@ -33,15 +33,6 @@ Install django-ordered-field::
 
     pip install https://github.com/kimgea/django-ordered-field
 
-Add it to your `INSTALLED_APPS`:
-
-.. code-block:: python
-
-    INSTALLED_APPS = (
-        ...
-        'django_ordered_field',
-        ...
-    )
 
 In your models.py add the field you want ``OrderedField`` or ``OrderedCollectionField``:
 
@@ -73,20 +64,17 @@ Not in readme, but move to doc
 
 * Regular inheritance does not work when updating position by using parent class (works with parent_link). Other classes inheriting from it is also changed, and wrongly
 
-BUGGS???
---------
-
 
 TODO
 --------
 
+* Add documentation
 * Collection change update parameter... look for a better name
 * naming of instance variables might be confusing, look at it.
 * Same for naming of add_signals. Make custom named function for each use case
 * Look for more refactoring
 * Finish setup.py
 * Check requirements.txt
-* Add documentation
 * Cleanup readme
 * Check project files
 * Register on pip
@@ -94,27 +82,10 @@ TODO
 * Make example project - eh, probably skiping it
 
 
-Running Tests
--------------
-
-Does the code actually work?
-
-::
-
-    source <YOURVIRTUALENV>/bin/activate
-    (myenv) $ pip install tox
-    (myenv) $ tox
-
-
-    source <YOURVIRTUALENV>/bin/activate
-    (myenv) $ python setup.py test
-
-
-
 Credits
 -------
 
-Based on django-positions (it did not work for django 2):
+Based on django-positions (it did not work for django 2 at the time):
 
 *  django-positions_
 

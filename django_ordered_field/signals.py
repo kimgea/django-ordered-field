@@ -19,7 +19,7 @@ def add_signals_full(class_with_function, sender_class, field_name):
     add_signals_save(class_with_function, sender_class, field_name)
 
 
-def add_signals(class_with_function, sender_class, field_name):  # TODO: RENAME
+def add_signals_for_inheritance(class_with_function, sender_class, field_name):
     add_signals_save(class_with_function, sender_class, field_name)
 
 

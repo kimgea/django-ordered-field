@@ -50,7 +50,7 @@ setup(
     description="""Django field arrange model instances in an ordered fashion""",
     long_description=readme + '\n\n' + history,
     author='Kim-Georg Aase',
-    author_email='...',
+    author_email='kim.georg.aase@gmail.com',
     url='https://github.com/kimgea/django-ordered-field',
     packages=[
         'django_ordered_field',
@@ -62,11 +62,14 @@ setup(
     zip_safe=False,
     keywords='django-ordered-field',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
+        'Environment :: Web Environment',
         'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
+        'Topic :: Internet :: WWW/HTTP',
     ],
 )

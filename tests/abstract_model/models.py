@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_ordered_field import (OrderedCollectionField, OrderedField, add_signals)
+from django_ordered_field import (OrderedCollectionField, OrderedField)
 from django.db.models.signals import (post_delete, post_save, pre_delete, pre_save)
 
 
@@ -19,10 +19,6 @@ class CommonInfo(models.Model):
 
 class Person(CommonInfo):
     description = models.CharField(max_length=100)
-
-
-#add_signals(CommonInfo, Person, "position")
-
 
 
 #########################
