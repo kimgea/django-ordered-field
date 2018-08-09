@@ -10,7 +10,6 @@ The OrderedField class keeps all the records in the table in order from 0 to cou
 
     from django_ordered_field import OrderedField
 
-
     class Table(models.Model):
         name = models.CharField(max_length=100)
         order = OrderedField()
@@ -23,7 +22,6 @@ The OrderedCollectionField class is used to keep records in order related to ano
 .. code-block:: python
 
     from django_ordered_field import OrderedCollectionField
-
 
     class Item(models.Model):
         name = models.OrderedCollectionField(max_length=100)
@@ -44,7 +42,30 @@ Update table data
 -------
 Inserting, updating and deletion of instances has to use methods that uses the model.save() and model.delete() methods. queryset.update(...), queryset.delete() and similar functions that omits model.save() and model.delete() will destroy the ordering of the instances.
 
-# TODO: Concreate examples
+.. code-block:: python
+
+    Item.objects.create(name="A")
+    # [('A', 0)]
+    item = Item(name="B")
+    item.save()
+    # [('A', 0), ('B', 1)]
+    Item.objects.create(name="C", order=0)
+    # [('C', 0), ('A', 1), ('B', 2)]
+    item = Item.objects.filer(name='A').first()
+    item.order = -1
+    item.save()
+    # [('C', 0), ('B', 1), ('A', 2)]
+    item = Item.objects.filer(name='A').first()
+    item.order = 0
+    item.save()
+    # [('A', 0), ('C', 1), ('B', 2)]
+    item = Item.objects.filer(name='A').first()
+    item.delete()
+    # [('C', 0), ('B', 1)]
+    item = Item.objects.filer(name='B').first()
+    item.delete()
+    # [('C', 0)]
+
 
 Other fields updated when order is changed
 -------
@@ -92,24 +113,77 @@ If self_updates_on_collection_change is the same as extra_field_updates like abo
 
 Model inheritance
 -------
+NB: Remember to manually register the signals by using the add_signals method when using inheritance.
+
+There are two ways to do regular inheritance. The first one is just to add inheritance without doing anything else. By doing this each model that inherit from it has its order related to its own table.
 
 .. code-block:: python
+
+    from django_ordered_field import (OrderedField, add_signals_for_inheritance)
+
+    class Unit(models.Model):
+        name = models.CharField(max_length=100)
+        position = OrderedField()
+
+
+    class Video(Unit):
+        pass
+
+
+    add_signals_for_inheritance(Unit, Video, "position")
+
+
+    class Audio(Unit):
+        pass
+
+
+    add_signals_for_inheritance(Unit, Audio, "position")
+
+
+    Video.objects.create(name="Video")
+    Quiz.objects.create(name="Audio")
+    print(list(Unit.objects.all().order_by("position").
+                      values_list( "name", "position")))
+    # [("Video", 0), ("Audio", 0)]
+
+
+The other method is to use the parent_link_name parameter. This will make the order field use the parrent model for its ordering.
+
+.. code-block:: python
+
+    from django_ordered_field import (OrderedField, add_signals_for_inheritance)
 
     class Unit(models.Model):
         name = models.CharField(max_length=100)
         position = OrderedField(parent_link_name='unittwo_ptr')
 
 
-    class VideoTwo(Unit):
-        description = models.CharField(max_length=100)
+    class Video(Unit):
+        pass
 
 
-    add_signals(Unit, Video, "position")
+    add_signals_for_inheritance(Unit, Video, "position")
+
+
+    class Audio(Unit):
+        pass
+
+
+    add_signals_for_inheritance(Unit, Audio, "position")
+
+
+    Video.objects.create(name="Video")
+    Quiz.objects.create(name="Audio")
+    print(list(Unit.objects.all().order_by("position").
+                      values_list( "name", "position")))
+    # [("Video", 0), ("Audio", 1)]
 
 Abstract model
 -------
 
 .. code-block:: python
+
+    from django_ordered_field import OrderedField
 
     class CommonInfo(models.Model):
         name = models.CharField(max_length=100)
@@ -124,8 +198,11 @@ Abstract model
 
 Proxy model
 -------
+NB: Remember to manually register the signals by using the add_signals_for_proxy method when using inheritance.
 
 .. code-block:: python
+
+    from django_ordered_field import (OrderedField, add_signals_for_proxy)
 
     class Person(models.Model):
         name = models.CharField(max_length=100)

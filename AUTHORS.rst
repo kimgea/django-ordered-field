@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Kim-Georg Aase <>
+* Kim-Georg Aase <kim.georg.aase@gmail.com>
 
 Contributors
 ------------

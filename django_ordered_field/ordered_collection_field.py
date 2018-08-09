@@ -94,7 +94,7 @@ class OrderedCollectionField(OrderedField):
         updates = {self.name: models.F(self.name) - 1}
         self.extra_updates_on_change(model_instance, updates)
         current = getattr(model_instance, self.get_cache_name())[0]  # magic number :(
-        queryset = self.get_collection(model_instance)  # TODO: use get queryset ???
+        queryset = self.get_queryset(model_instance)
         queryset.filter(**{'%s__gt' % self.name: current}).update(**updates)
 
     def get_cleaned_current_and_updated_values(self, add, model_instance, cache_name, values=None):
