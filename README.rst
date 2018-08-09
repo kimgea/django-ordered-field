@@ -11,15 +11,15 @@ django-ordered-field
 .. image:: https://codecov.io/gh/kimgea/django-ordered-field/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/kimgea/django-ordered-field
 
-A django field to make it easy to order your model instances.
-OrderedField field is a global ordering field for the entire table.
-OrderedCollectionField order instances with respect to one or more other instance fields.
+A django field to make it easy to order your model instances. If you have made an ordered list and you change the position of the list item instance then all the other list iteminstances belonging to that list has their position automatically updated to keep the list ordered without holes and list items with duplicate positions.
+``OrderedField field`` is a global ordering field for the entire table.
+``OrderedCollectionField`` order instances with respect to one or more other fields on the instance.
 
 
 Requires
 --------
 * python>=3.6
-* django>=2.
+* django>=2.0
 
 Documentation
 -------------
@@ -31,7 +31,7 @@ Quickstart
 
 Install django-ordered-field::
 
-    pip install https://github.com/kimgea/django-ordered-field
+    pip install git+https://github.com/kimgea/django-ordered-field.git
 
 
 In your models.py add the field you want ``OrderedField`` or ``OrderedCollectionField``:
@@ -49,34 +49,25 @@ And your ready to go.
 Features
 --------
 
-* OrderedField will keep correct ordering between all instances in the enire table
-* OrderedCollectionField can seperate the table in different collection based on one or more columns and keep order in each collection
-* update_auto_now will update all other fields containing auto_now=True with django.utils.timezone.now if it is set to True
-* extra_field_updates can be used to update other fields when their order is changed
+* ``OrderedField`` will keep correct ordering between all instances in the enire table
+* ``OrderedCollectionField`` can seperate the table in different collection based on one or more columns and keep order in each collection
+* ``update_auto_now`` will update all other fields containing auto_now=True with django.utils.timezone.now if it is set to True
+* ``extra_field_updates`` can be used to update other fields when their order is changed
+* ``self_updates_on_collection_change`` can be used to update self (current instance) when it changes collection. Setting ``self_updates_on_collection_change_like_regular`` to True will make it use the values from the extra_field_updates
 
 Limitations
 --------
 
 * Must user model.save(). queryset methods does not work
 * Order field cant be unique or in an uniqu_togheter constraint
-
-Not in readme, but move to doc
-
-* Regular inheritance does not work when updating position by using parent class (works with parent_link). Other classes inheriting from it is also changed, and wrongly
-
+* After a position has been updated, other members of the collection are updated using a single SQL UPDATE statement, this means the save method of the other instances won't be called. As a partial work-around use the ``update_auto_now``, ``extra_field_updates`` and the ``self_updates_on_collection_change`` functionalities.
 
 TODO
 --------
 
-* Add documentation
-* Collection change update parameter... look for a better name
-* naming of instance variables might be confusing, look at it.
-* Same for naming of add_signals. Make custom named function for each use case
-* Look for more refactoring
 * Finish setup.py
-* Check requirements.txt
-* Cleanup readme
 * Check project files
+* Try to download from git and use in other project
 * Register on pip
 * Register on django
 * Make example project - eh, probably skiping it
