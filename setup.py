@@ -62,7 +62,7 @@ setup(
     zip_safe=False,
     keywords='django-ordered-field',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django :: 2.0',
         'Framework :: Django :: 2.1',
