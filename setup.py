@@ -56,7 +56,7 @@ setup(
         'django_ordered_field',
     ],
     include_package_data=True,
-    install_requires=["Django>=2",],
+    install_requires=[],
     test_suite="runtests.run_tests",
     license="MIT",
     zip_safe=False,
