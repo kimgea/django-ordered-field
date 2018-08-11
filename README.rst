@@ -62,16 +62,6 @@ Limitations
 * Order field cant be unique or in an uniqu_togheter constraint
 * After a position has been updated, other members of the collection are updated using a single SQL UPDATE statement, this means the save method of the other instances won't be called. As a partial work-around use the ``update_auto_now``, ``extra_field_updates`` and the ``self_updates_on_collection_change`` functionalities.
 
-TODO
---------
-
-* Finish setup.py
-* Check project files
-* Try to download from git and use in other project
-* Register on pip
-* Register on django
-* Make example project - eh, probably skiping it
-
 
 Credits
 -------
