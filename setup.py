@@ -47,7 +47,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='django-ordered-field',
     version=version,
-    description="""Django field arrange model instances in an ordered fashion""",
+    description="""Django field to help arrange model instances in an ordered fashion""",
     long_description=readme + '\n\n' + history,
     author='Kim-Georg Aase',
     author_email='kim.georg.aase@gmail.com',
