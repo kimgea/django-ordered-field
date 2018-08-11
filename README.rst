@@ -18,7 +18,7 @@ A django field to make it easy to order your model instances. If you have made a
 
 Requires
 --------
-* python>=3.6
+* python>=3.6 (Probably works with all python 3 versions, but not guaranteed)
 * django>=2.0
 
 Documentation
